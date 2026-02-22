@@ -17,11 +17,53 @@ A Laravel-based fund management API with event-driven duplicate detection, SQLit
 
 - PHP 8.1 or higher
 - Composer
-- Redis server (for event queue)
+- Docker and Docker Compose (for Redis)
 - Node.js and npm (for Vue.js frontend)
 - SQLite (included with PHP)
 
 ## Installation
+
+### 0. Start Redis Server
+
+The application uses Redis for event queuing. Start Redis using Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Pull the Redis 7 Alpine image (lightweight)
+- Start Redis on port 6379
+- Enable data persistence with append-only file (AOF)
+- Run Redis in the background
+
+**Verify Redis is running:**
+
+```bash
+docker-compose ps
+```
+
+You should see the `canoe-redis` container running.
+
+**Check Redis connection:**
+
+```bash
+docker exec -it canoe-redis redis-cli ping
+```
+
+Should return `PONG`.
+
+**Stop Redis:**
+
+```bash
+docker-compose down
+```
+
+**Stop Redis and remove data:**
+
+```bash
+docker-compose down -v
+```
 
 ### 1. Install PHP Dependencies
 
@@ -40,7 +82,7 @@ Ensure your `.env` file has the following configuration:
 
 ```env
 DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database/database.sqlite
+DB_DATABASE=database/database.sqlite
 
 QUEUE_CONNECTION=redis
 BROADCAST_DRIVER=redis
@@ -72,6 +114,14 @@ npm install
 ```
 
 ## Running the Application
+
+### Prerequisites
+
+Ensure Redis is running:
+
+```bash
+docker-compose up -d
+```
 
 You need to run **three separate processes** for the full application:
 
@@ -115,27 +165,6 @@ Frontend available at: `http://localhost:5173`
 ```bash
 php artisan test
 ```
-
-### Run Specific Test Groups
-
-```bash
-# Run only property-based tests
-php artisan test --group=property-based
-
-# Run only canoe-app-funds tests
-php artisan test --group=canoe-app-funds
-
-# Run with coverage (requires Xdebug)
-php artisan test --coverage
-```
-
-### Test Summary
-
-- **35 tests** with **198 assertions**
-- Unit tests for all API endpoints
-- Property-based tests with 100 iterations
-- Integration tests for event system
-- Validation and error handling tests
 
 ## API Documentation
 
@@ -256,10 +285,12 @@ SQLite is used for simplicity. For production, consider PostgreSQL or MySQL. Upd
 
 ### Queue Worker Not Processing Events
 
-- Ensure Redis is running: `redis-cli ping` (should return `PONG`)
+- Ensure Redis is running: `docker-compose ps` (should show `canoe-redis` as running)
+- Test Redis connection: `docker exec -it canoe-redis redis-cli ping` (should return `PONG`)
 - Check queue worker is running: `php artisan queue:work`
 - Verify `.env` has `QUEUE_CONNECTION=redis`
 - Check Laravel logs: `storage/logs/laravel.log`
+- Restart Redis if needed: `docker-compose restart redis`
 
 ### Database Errors
 

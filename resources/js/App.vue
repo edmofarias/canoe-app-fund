@@ -5,6 +5,8 @@
         <h1>Fund Management</h1>
         <div class="nav-links">
           <router-link to="/">Funds</router-link>
+          <router-link to="/fund-managers">Fund Managers</router-link>
+          <router-link to="/companies">Companies</router-link>
           <router-link to="/duplicate-warnings">Duplicate Warnings</router-link>
         </div>
       </div>
