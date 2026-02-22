@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\DuplicateFundWarning;
 use App\Models\Fund;
+use Log;
 
 class DuplicateDetectionService
 {
@@ -57,6 +58,8 @@ class DuplicateDetectionService
      */
     private function emitDuplicateWarning(int $fundId1, int $fundId2): void
     {
+        Log::info('DuplicateFundWarning event dispatch');
+
         event(new DuplicateFundWarning($fundId1, $fundId2));
     }
 }
