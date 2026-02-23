@@ -9,6 +9,7 @@
         "doctrine/dbal": "^4.0",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^12.0",
+        "laravel/horizon": "^5.44",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",
         "predis/predis": "^3.4"

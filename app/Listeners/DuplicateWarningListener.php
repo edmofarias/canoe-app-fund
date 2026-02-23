@@ -24,7 +24,7 @@ class DuplicateWarningListener implements ShouldQueue
      *
      * @var int
      */
-    public $delay = 10;
+    public $delay = 5;
 
     /**
      * Handle the event.
@@ -34,6 +34,23 @@ class DuplicateWarningListener implements ShouldQueue
      */
     public function handle(DuplicateFundWarning $event): void
     {
+        // Check if this warning already exists
+        $exists = DuplicateWarning::where(function ($query) use ($event) {
+            $query->where('fund_id_1', $event->fundId1)
+                  ->where('fund_id_2', $event->fundId2);
+        })->orWhere(function ($query) use ($event) {
+            $query->where('fund_id_1', $event->fundId2)
+                  ->where('fund_id_2', $event->fundId1);
+        })->exists();
+
+        if ($exists) {
+            Log::info('Duplicate warning already exists, skipping', [
+                'fund_id_1' => $event->fundId1,
+                'fund_id_2' => $event->fundId2,
+            ]);
+            return;
+        }
+
         DuplicateWarning::create([
             'fund_id_1' => $event->fundId1,
             'fund_id_2' => $event->fundId2,

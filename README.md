@@ -15,7 +15,7 @@ A Laravel-based fund management API with event-driven duplicate detection, SQLit
 
 ## Prerequisites
 
-- PHP 8.1 or higher
+- PHP 8.3 or higher
 - Composer
 - Docker and Docker Compose (for Redis)
 - Node.js and npm (for Vue.js frontend)
@@ -23,47 +23,6 @@ A Laravel-based fund management API with event-driven duplicate detection, SQLit
 
 ## Installation
 
-### 0. Start Redis Server
-
-The application uses Redis for event queuing. Start Redis using Docker Compose:
-
-```bash
-docker-compose up -d
-```
-
-This will:
-- Pull the Redis 7 Alpine image (lightweight)
-- Start Redis on port 6379
-- Enable data persistence with append-only file (AOF)
-- Run Redis in the background
-
-**Verify Redis is running:**
-
-```bash
-docker-compose ps
-```
-
-You should see the `canoe-redis` container running.
-
-**Check Redis connection:**
-
-```bash
-docker exec -it canoe-redis redis-cli ping
-```
-
-Should return `PONG`.
-
-**Stop Redis:**
-
-```bash
-docker-compose down
-```
-
-**Stop Redis and remove data:**
-
-```bash
-docker-compose down -v
-```
 
 ### 1. Install PHP Dependencies
 
@@ -117,13 +76,20 @@ npm install
 
 ### Prerequisites
 
-Ensure Redis is running:
+### Start Redis Server
+
+The application uses Redis for event queuing. Start Redis using Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
-You need to run **three separate processes** for the full application:
+This will:
+- Pull the Redis image
+- Start Redis on port 6379
+- Run Redis in the background
+
+You need to run **three separate processes** for the full application locally:
 
 ### Terminal 1: Laravel API Server
 
@@ -131,32 +97,20 @@ You need to run **three separate processes** for the full application:
 php artisan serve
 ```
 
-API available at: `http://localhost:8000`
-
 ### Terminal 2: Queue Worker (REQUIRED)
 
-**CRITICAL:** The queue worker must be running for duplicate detection to work.
+The queue worker must be running for duplicate fund detection to work.
 
 ```bash
-php artisan queue:work
+php artisan queue:work --queue=duplicate_fund_warning
 ```
-
-This processes duplicate warning events from Redis asynchronously. Keep this running while using the application.
-
-**Queue Worker Options:**
-- `php artisan queue:work --tries=3` - Retry failed jobs up to 3 times
-- `php artisan queue:work --timeout=60` - Set job timeout to 60 seconds
-- `php artisan queue:work --sleep=3` - Sleep 3 seconds when no jobs available
-
-**For Production:** Use a process manager like Supervisor to keep the queue worker running continuously.
 
 ### Terminal 3: Vue.js Frontend
 
 ```bash
 npm run dev
 ```
-
-Frontend available at: `http://localhost:5173`
+API available at: `http://localhost:8000`
 
 ## Running Tests
 
@@ -261,25 +215,7 @@ This approach ensures API responsiveness while maintaining data quality.
 
 ### Soft Deletes
 
-All entities use soft deletes (`deleted_at` timestamp). Soft-deleted records:
-- Are excluded from list operations
-- Preserve all relationships
-- Can be restored if needed
-- Maintain referential integrity
-
-## Configuration
-
-### CORS Configuration
-
-CORS is configured in `config/cors.php` to allow requests from the Vue.js dev server (`http://localhost:5173`). Update this for production environments.
-
-### Queue Configuration
-
-Queue configuration is in `config/queue.php`. The default queue connection is Redis. Ensure Redis is running before starting the queue worker.
-
-### Database Configuration
-
-SQLite is used for simplicity. For production, consider PostgreSQL or MySQL. Update `config/database.php` and `.env` accordingly.
+All entities use soft deletes (`deleted_at` timestamp). 
 
 ## Troubleshooting
 
@@ -310,13 +246,6 @@ SQLite is used for simplicity. For production, consider PostgreSQL or MySQL. Upd
 - Run migrations: `php artisan migrate --env=testing`
 - Clear cache: `php artisan config:clear`
 
-## Development Notes
-
-- Property-based tests run 100 iterations with randomized data
-- All tests are tagged with `@group canoe-app-funds`
-- Property tests are tagged with `@group property-based`
-- Factories use Faker for realistic test data generation
-- Database transactions are used for all write operations
 
 ## Project Structure
 

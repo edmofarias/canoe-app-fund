@@ -23,6 +23,7 @@
             <div class="fund-comparison">
               <h3>Fund 1</h3>
               <div class="fund-info">
+                <p><strong>ID:</strong> {{ warning.fund1?.id || 'N/A' }}</p>
                 <p><strong>Name:</strong> {{ warning.fund1?.name || 'N/A' }}</p>
                 <p><strong>Start Year:</strong> {{ warning.fund1?.start_year || 'N/A' }}</p>
                 <p><strong>Manager:</strong> {{ warning.fund1?.fund_manager?.name || 'N/A' }}</p>
@@ -51,6 +52,7 @@
             <div class="fund-comparison">
               <h3>Fund 2</h3>
               <div class="fund-info">
+                <p><strong>ID:</strong> {{ warning.fund2?.id || 'N/A' }}</p>
                 <p><strong>Name:</strong> {{ warning.fund2?.name || 'N/A' }}</p>
                 <p><strong>Start Year:</strong> {{ warning.fund2?.start_year || 'N/A' }}</p>
                 <p><strong>Manager:</strong> {{ warning.fund2?.fund_manager?.name || 'N/A' }}</p>
